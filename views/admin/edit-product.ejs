@@ -1,0 +1,149 @@
+<%- include('../includes/head.ejs') %>
+<!-- DataTables -->
+<link rel="stylesheet" href="../../plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="../../plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<!-- Theme style -->
+
+<!-- summernote -->
+<link rel="stylesheet" href="../../plugins/summernote/summernote-bs4.css">
+
+</head>
+
+
+<body class="hold-transition sidebar-mini">
+    <%- include('../includes/admin-navigation.ejs') %>
+    <div class="wrapper">
+        <div class="container">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1><% if (editing) { %>Edit Product<% } else { %>Add Product<% } %></h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item active"><% if (editing) { %>Edit Product<% } else { %>Add
+                                    Product<% } %></li>
+                            </ol>
+                        </div>
+                    </div>
+                </div><!-- /.container-fluid -->
+            </section>
+            <div class="row  justify-content-center">
+                <!-- left column -->
+                <div class="col-md-8">
+                    <main>
+                        <form class="product-form"
+                            action="/admin/<% if (editing) { %>edit-product<% } else { %>add-product<% } %>"
+                            method="POST" enctype="multipart/form-data">
+
+                            <div class="card card-primary">
+                                <div class="card-header">
+                                    <h3 class="card-title"><% if (editing) { %>Edit Product<% } else { %>Add
+                                        Product<% } %></h3>
+                                </div>
+                                <div class="card-body">
+                                    <% if (errorMessage) { %>
+                                    <div class="text-danger"><%= errorMessage %></div>
+                                    <div class="text-danger"><%= JSON.stringify(validationErrors) %></div>
+
+                                    <% } %>
+                                    <div class="form-group">
+                                        <label for="title">Title</label>
+                                        <input
+                                            class="form-control <%= validationErrors.find(e => e.param === 'title') ? 'is-invalid' : '' %>"
+                                            type="text" name="title" id="title"
+                                            value="<% if (editing || hasError) { %><%= product.title %><% } %>">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="image">Image</label>
+                                        <div class="input-group">
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input" name="image" id="image">
+                                                <label class="custom-file-label" for="image">Choose
+                                                    file</label>
+                                            </div>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" id="">Upload</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="price">Price</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">$</span>
+                                            </div>
+
+                                            <input
+                                                class="form-control <%= validationErrors.find(e => e.param === 'price') ? 'is-invalid' : '' %>"
+                                                type="number" name="price" id="price" step="0.01"
+                                                value="<% if (editing || hasError) { %><%= product.price %><% } %>">
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="form-group <%= validationErrors.find(e => e.param === 'description') ? 'is-invalid' : '' %>">
+                                        <label for="description">Description</label>
+                                        <textarea maxlength="150" class="form-control textarea float" name="description"
+                                            id="description"
+                                            rows="5"><% if (editing || hasError) { %><%= product.description %><% } %></textarea>
+                                    </div>
+                                    <% if (editing) { %>
+                                    <input type="hidden" value="<%= product._id %>" name="productId">
+                                    <% } %>
+
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <a href="/admin/products" class="btn btn-secondary">Cancel</a>
+                                    <button type="submit"
+                                        class="btn btn-primary btn-flat float-sm-right"><% if (editing) { %>
+                                        Update Product
+                                        <% } else { %>
+                                        Add Product
+                                        <% } %></button>
+                                    <!-- /input-group -->
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </form>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../../plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../../dist/js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../../dist/js/demo.js"></script>
+    <!-- Summernote -->
+    <script src="../../plugins/summernote/summernote-bs4.min.js"></script>
+    <script>
+        $(function () {
+            // Summernote
+            $('.textarea').summernote(
+                {
+                    codeviewFilter: false,
+                    codeviewIframeFilter: true,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['view', ['undo', 'redo', 'codeview', 'help']],
+                    ]
+                }
+            )
+        })
+    </script>
+    <!-- REQUIRED SCRIPTS -->
+</body>
+
+</html>
