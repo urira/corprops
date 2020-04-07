@@ -6,11 +6,16 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 
+
 require('dotenv').config();
 
 const csrf = require('csurf');
 const flash = require('connect-flash');
+
 const multer = require('multer');
+const multerS3 = require('multer-s3');
+const AWS = require('aws-sdk');
+
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
@@ -52,9 +57,35 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// app.use(
+//   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+// );
+
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY
+});
+
+
+
+
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+  multer({ 
+    storage: multerS3({
+      s3: s3,
+      bucket: process.env.AWS_S3_BUCKET,
+      acl: 'public-read',
+       contentType: multerS3.AUTO_CONTENT_TYPE,
+      key: function (req, file, cb) {
+          console.log(file);
+          cb(null, 'images/' + new Date().toISOString() + '-' + file.originalname); //use Date.now() for unique file keys
+      }
+    }),
+    fileFilter: fileFilter }).single('image')
 );
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(
@@ -120,5 +151,5 @@ mongoose
     console.log(err);
   });
 
-  
+
   

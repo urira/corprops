@@ -22,7 +22,14 @@ exports.postAddProduct = (req, res, next) => {
   const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
-  if (!image) {
+
+  const isImage = (
+    image.mimetype === 'image/png' ||
+    image.mimetype === 'image/jpg' ||
+    image.mimetype === 'image/jpeg'
+  );
+
+  if (!isImage) {
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Add Product',
       path: '/admin/add-product',
@@ -129,6 +136,29 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const image = req.file;
   const updatedDesc = req.body.description;
+
+  const isImage = (
+    image.mimetype === 'image/png' ||
+    image.mimetype === 'image/jpg' ||
+    image.mimetype === 'image/jpeg'
+  );
+
+
+  if (!isImage) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        price: price,
+        description: description
+      },
+      errorMessage: 'Attached file is not an image.',
+      validationErrors: []
+    });
+  }
 
   const errors = validationResult(req);
 
