@@ -28,14 +28,6 @@ const store = new MongoDBStore({
 const csrfProtection = csrf();
 
 
-const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'images');
-  },
-  filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + '-' + file.originalname);
-  }
-});
 
 const fileFilter = (req, file, cb) => {
   if (
@@ -68,9 +60,6 @@ const s3 = new AWS.S3({
   secretAccessKey: process.env.AWS_SECRET_KEY
 });
 
-
-
-
 app.use(
   multer({ 
     storage: multerS3({
@@ -86,8 +75,8 @@ app.use(
     fileFilter: fileFilter }).single('image')
 );
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/images', express.static(path.join(__dirname, 'images')));
+ app.use(express.static(path.join(__dirname, 'public')));
+// app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(
   session({
     secret: 'my secret',

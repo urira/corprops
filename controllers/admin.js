@@ -49,8 +49,8 @@ exports.postAddProduct = (req, res, next) => {
   if (!errors.isEmpty()) {
     console.log(errors.array());
     return res.status(422).render('admin/edit-product', {
-      pageTitle: 'Add Product',
-      path: '/admin/add-product',
+      pageTitle: 'Edit Product',
+      path: '/admin/edit-product',
       editing: false,
       hasError: true,
       product: {
@@ -63,7 +63,7 @@ exports.postAddProduct = (req, res, next) => {
     });
   }
 
-  const imageUrl = image.path;
+  const imageUrl = process.env.AWS_CDN_URL + image.key;
 
   const product = new Product({
     // _id: new mongoose.Types.ObjectId('5badf72403fd8b5be0366e81'),
