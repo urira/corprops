@@ -6,6 +6,21 @@ const { validationResult } = require('express-validator/check');
 
 const Product = require('../models/product');
 
+
+
+exports.getDashboard = (req, res, next) => {
+  res.render('admin/dashboard', {
+    pageTitle: 'Dashboard',
+    path: '/admin/dashboard',
+    editing: false,
+    hasError: false,
+    errorMessage: null,
+    validationErrors: []
+  });
+};
+
+
+
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
@@ -22,6 +37,10 @@ exports.postAddProduct = (req, res, next) => {
   const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
+
+  const multer = require('multer');
+  const multerS3 = require('multer-s3');
+  const AWS = require('aws-sdk');
 
   const isImage = (
     image.mimetype === 'image/png' ||
@@ -62,6 +81,25 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: errors.array()
     });
   }
+
+
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY
+  });
+
+  multer({ 
+    storage: multerS3({
+      s3: s3,
+      bucket: process.env.AWS_S3_BUCKET + '_cont',
+      acl: 'public-read',
+       contentType: multerS3.AUTO_CONTENT_TYPE,
+      key: function (req, image, cb) {
+          console.log(image);
+          cb(null, 'images_admin/' + new Date().toISOString() + '-' + image.originalname); //use Date.now() for unique file keys
+      }
+    }),
+    fileFilter: fileFilter }).single('image');
 
   const imageUrl = process.env.AWS_CDN_URL + image.key;
 
@@ -240,3 +278,5 @@ exports.deleteProduct = (req, res, next) => {
       res.status(500).json({ message: 'Deleting product failed.' });
     });
 };
+
+
